@@ -50,4 +50,9 @@ export const api = {
     fetchJson<SectorWithHistory[]>(`/market/sectors-with-history?days=${days}`),
 
   getGlobalCrises: () => fetchJson<GlobalCrisis[]>("/news/crises"),
+
+  getSectorStocks: (etfSymbol: string) =>
+    fetchJson<{ symbol: string; name: string; close: number; change_p: number; volume: number; market_cap: number }[]>(
+      `/market/sector-stocks/${etfSymbol}`
+    ),
 };
