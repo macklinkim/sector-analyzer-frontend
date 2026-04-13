@@ -47,8 +47,8 @@ export interface NewsArticle {
   source: string;
   url: string;
   summary: string | null;
-  published_at: string;
-  collected_at: string;
+  published_at?: string;
+  collected_at?: string;
 }
 
 export interface NewsArticleEnriched extends NewsArticle {
@@ -59,6 +59,7 @@ export interface NewsArticleEnriched extends NewsArticle {
   news_category: string | null;  // A_MACRO, B_INDUSTRY, C_CORPORATE
   expert_insight: string | null;
   action_item: string | null;
+  analyzed_at?: string;
 }
 
 export interface NewsImpactAnalysis {
@@ -176,3 +177,41 @@ export const REGIME_LABELS: Record<RegimeType, string> = {
   stagflation: "Stagflation",
   deflation: "Deflation",
 };
+
+// === Dashboard layout types (2026-04-11) ===
+
+export type DashboardTab = 'market' | 'ai';
+
+/**
+ * Shape returned by useMarketData(). Layout components import this
+ * instead of ReturnType<typeof useMarketData> to avoid coupling
+ * layout → hooks direction.
+ */
+export interface MarketDataState {
+  indices: MarketIndex[];
+  sectors: Sector[];
+  indicators: EconomicIndicator[];
+  regime: MacroRegime | null;
+  loading: boolean;
+  error: string | null;
+  lastUpdated: string | null;
+  refresh: () => void;
+}
+
+export interface NewsDataState {
+  articles: NewsArticleEnriched[];
+  impacts: NewsImpactAnalysis[];
+  crises: GlobalCrisis[];
+  loading: boolean;
+  error: string | null;
+  refresh: () => void;
+}
+
+export interface AnalysisDataState {
+  scoreboards: SectorScoreboard[];
+  signals: RotationSignal[];
+  report: MarketReport | null;
+  loading: boolean;
+  error: string | null;
+  refresh: () => void;
+}

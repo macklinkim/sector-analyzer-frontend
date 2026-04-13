@@ -3,7 +3,7 @@ import { Treemap, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSectorLabel } from "@/lib/i18n";
-import { formatPercent } from "@/lib/utils";
+import { formatPercent, getCached, setCache } from "@/lib/utils";
 import { api } from "@/lib/api";
 
 interface StockData {
@@ -30,40 +30,39 @@ function getHeatmapColor(changePercent: number): string {
   return "#b91c1c";
 }
 
-interface TreemapContentProps {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  name: string;
-  change_p: number;
-  close: number;
-}
-
-function CustomContent({ x, y, width, height, name, change_p, close }: TreemapContentProps) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CustomContent(props: any) {
+  const { x, y, width, height, name, change_p } = props;
   if (width < 35 || height < 25) return null;
+
+  // Recharts passes all data fields — look up company name from the stockMap
+  const companyName: string = props.companyName ?? "";
+  const shortName = companyName && companyName !== name ? companyName.slice(0, 7) : "";
+  const pct = formatPercent(change_p ?? 0);
 
   return (
     <g>
       <rect
         x={x} y={y} width={width} height={height} rx={3}
-        fill={getHeatmapColor(change_p)}
+        fill={getHeatmapColor(change_p ?? 0)}
         stroke="var(--color-background)" strokeWidth={2}
       />
       {width > 50 && (
         <>
-          <text x={x + width / 2} y={y + height / 2 - 8} textAnchor="middle"
+          <text x={x + width / 2} y={y + height / 2 - 6} textAnchor="middle"
             fill="white" fontSize={width > 80 ? 11 : 9} fontWeight="bold">
             {name}
           </text>
-          <text x={x + width / 2} y={y + height / 2 + 5} textAnchor="middle"
-            fill="white" fontSize={9}>
-            ${close > 0 ? close.toFixed(0) : ""}
-          </text>
-          <text x={x + width / 2} y={y + height / 2 + 17} textAnchor="middle"
+          <text x={x + width / 2} y={y + height / 2 + 6} textAnchor="middle"
             fill="rgba(255,255,255,0.8)" fontSize={8}>
-            {formatPercent(change_p)}
+            {pct}
           </text>
+          {shortName && (
+            <text x={x + width / 2} y={y + height / 2 + 16} textAnchor="middle"
+              fill="rgba(255,255,255,0.8)" fontSize={width > 80 ? 11 : 9}>
+              {shortName}
+            </text>
+          )}
         </>
       )}
     </g>
@@ -74,31 +73,21 @@ export function SectorStockTreemap({ selectedSector, etfSymbol }: SectorStockTre
   const [stocks, setStocks] = useState<StockData[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
-
   const fetchStocks = useCallback(async () => {
     if (!etfSymbol) return;
 
-    // Check localStorage cache
     const cacheKey = `sector_stocks_${etfSymbol}`;
-    const cached = localStorage.getItem(cacheKey);
+    const cached = getCached<StockData[]>(cacheKey);
     if (cached) {
-      try {
-        const { data, ts } = JSON.parse(cached) as { data: StockData[]; ts: number };
-        if (Date.now() - ts < CACHE_TTL_MS) {
-          setStocks(data);
-          return;
-        }
-      } catch {
-        // corrupted cache, fetch fresh
-      }
+      setStocks(cached);
+      return;
     }
 
     setLoading(true);
     try {
       const data = await api.getSectorStocks(etfSymbol);
       setStocks(data);
-      localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
+      setCache(cacheKey, data);
     } catch {
       // ignore
     } finally {
@@ -140,6 +129,7 @@ export function SectorStockTreemap({ selectedSector, etfSymbol }: SectorStockTre
     .filter((s) => s.symbol !== "ETC" && s.close > 0)
     .map((s) => ({
       name: s.symbol,
+      companyName: s.name,
       size: s.market_cap || s.volume || 1,
       change_p: s.change_p,
       close: s.close,
@@ -149,6 +139,7 @@ export function SectorStockTreemap({ selectedSector, etfSymbol }: SectorStockTre
   if (etc) {
     treemapData.push({
       name: etc.name,
+      companyName: "",
       size: 1,
       change_p: 0,
       close: 0,
@@ -169,7 +160,7 @@ export function SectorStockTreemap({ selectedSector, etfSymbol }: SectorStockTre
               data={treemapData}
               dataKey="size"
               stroke="none"
-              content={<CustomContent x={0} y={0} width={0} height={0} name="" change_p={0} close={0} />}
+              content={<CustomContent />}
             />
           </ResponsiveContainer>
         )}

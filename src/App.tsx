@@ -1,92 +1,61 @@
 import { useState } from "react";
 import { LoginGate, logout, useAuth } from "@/components/auth/LoginGate";
+import { GlobalMacroHeader } from "@/components/header/GlobalMacroHeader";
+import { AiTab } from "@/components/layout/AiTab";
+import { DashboardTabs } from "@/components/layout/DashboardTabs";
+import { MarketTab } from "@/components/layout/MarketTab";
 import { useAnalysisData } from "@/hooks/useAnalysisData";
 import { useMarketData } from "@/hooks/useMarketData";
 import { useNewsData } from "@/hooks/useNewsData";
-import { GlobalMacroHeader } from "@/components/header/GlobalMacroHeader";
-import { SectorHeatmap } from "@/components/sector/SectorHeatmap";
-import { SectorSparkline } from "@/components/sector/SectorSparkline";
-import { MarketMovers } from "@/components/sector/MarketMovers";
-import { SectorStockTreemap } from "@/components/sector/SectorStockTreemap";
-import { NewsImpactFeed } from "@/components/news/NewsImpactFeed";
-import { EconomicCalendar } from "@/components/news/EconomicCalendar";
-import { MultiChartGrid } from "@/components/chart/MultiChartGrid";
-import { AiScreenerTable } from "@/components/screener/AiScreenerTable";
+import { useStickyState } from "@/hooks/useStickyState";
+import type { DashboardTab } from "@/types";
 
 function Dashboard() {
   const { name } = useAuth();
   const marketData = useMarketData();
   const newsData = useNewsData();
   const analysisData = useAnalysisData();
+  const [activeTab, setActiveTab] = useStickyState<DashboardTab>(
+    "dashboard_active_tab",
+    "market",
+  );
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
-  const selectedEtf = marketData.sectors.find((s) => s.name === selectedSector)?.etf_symbol ?? null;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Area A: Global Macro Header */}
-      <header>
-        <GlobalMacroHeader
-          indices={marketData.indices}
-          indicators={marketData.indicators}
-          regime={marketData.regime}
-          loading={marketData.loading}
-          lastUpdated={marketData.lastUpdated}
-        />
-      </header>
-
-      {/* Area B + C: Side by side */}
-      <main className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-2">
-        {/* Area B: Sector Heatmap & Movers */}
-        <div className="space-y-4">
-          <SectorHeatmap
-            sectors={marketData.sectors}
-            loading={marketData.loading}
-            onSectorClick={setSelectedSector}
-          />
-          <SectorStockTreemap
-            selectedSector={selectedSector}
-            etfSymbol={selectedEtf}
-          />
-          <SectorSparkline
-            sectors={marketData.sectors}
-            selectedSector={selectedSector}
-            onSectorClick={setSelectedSector}
-          />
-        </div>
-
-        {/* Area C: News Impact & Calendar & Rankings */}
-        <div className="space-y-4">
-          <NewsImpactFeed
-            articles={newsData.articles}
-            impacts={newsData.impacts}
-            crises={newsData.crises}
-            loading={newsData.loading}
-          />
-          <EconomicCalendar
+      {/* Sticky top: GlobalMacroHeader + DashboardTabs */}
+      <div className="sticky top-0 z-40 bg-background">
+        <header>
+          <GlobalMacroHeader
+            indices={marketData.indices}
             indicators={marketData.indicators}
+            regime={marketData.regime}
             loading={marketData.loading}
+            lastUpdated={marketData.lastUpdated}
           />
-          <MarketMovers
-            sectors={marketData.sectors}
+        </header>
+        <DashboardTabs activeTab={activeTab} onChange={setActiveTab} />
+      </div>
+
+      <main>
+        {activeTab === "market" && (
+          <MarketTab
+            marketData={marketData}
+            newsData={newsData}
             selectedSector={selectedSector}
+            setSelectedSector={setSelectedSector}
           />
-        </div>
+        )}
+        {activeTab === "ai" && (
+          <AiTab
+            marketData={marketData}
+            analysisData={analysisData}
+            selectedSector={selectedSector}
+            setSelectedSector={setSelectedSector}
+          />
+        )}
       </main>
 
-      {/* Area D: Deep Dive & Screener */}
-      <section className="space-y-4 px-4 pb-4">
-        <MultiChartGrid
-          sectors={marketData.sectors}
-          signals={analysisData.signals}
-          loading={marketData.loading}
-        />
-        <AiScreenerTable
-          scoreboards={analysisData.scoreboards}
-          loading={analysisData.loading}
-        />
-      </section>
-
-      {/* Footer */}
       <footer className="border-t border-border px-4 py-3">
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
@@ -95,6 +64,7 @@ function Dashboard() {
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground">{name}</span>
             <button
+              type="button"
               onClick={logout}
               className="text-xs text-muted-foreground underline hover:text-foreground"
             >

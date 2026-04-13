@@ -3,6 +3,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  LabelList,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -95,6 +96,32 @@ export function RelativeStrength({ sectors, loading }: RelativeStrengthProps) {
             />
             <ReferenceLine y={0} stroke="var(--color-muted-foreground)" strokeWidth={1.5} />
             <Bar dataKey="rs" radius={[4, 4, 0, 0]}>
+              <LabelList
+                dataKey="rs"
+                content={(props) => {
+                  const n = Number(props.value);
+                  if (n === 0) return null;
+                  const x = Number(props.x ?? 0);
+                  const y = Number(props.y ?? 0);
+                  const w = Number(props.width ?? 0);
+                  const cx = x + w / 2;
+                  // Positive bar: 바 외부 상단 바로 위 (y - 5)
+                  // Negative bar: 바 내부 zero line 바로 아래 (y + 14) — 유지
+                  const cy = n >= 0 ? y - 5 : y + 14;
+                  return (
+                    <text
+                      x={cx}
+                      y={cy}
+                      textAnchor="middle"
+                      fontSize={10}
+                      fontWeight={700}
+                      fill="#ffffff"
+                    >
+                      {`${n > 0 ? "+" : ""}${n.toFixed(1)}%`}
+                    </text>
+                  );
+                }}
+              />
               {data.map((entry) => (
                 <Cell
                   key={entry.symbol}
