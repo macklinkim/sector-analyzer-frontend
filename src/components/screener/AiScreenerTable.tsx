@@ -19,6 +19,13 @@ function getRecommendationVariant(rec: string): "bullish" | "bearish" | "default
   return "default";
 }
 
+function getRecommendationLabel(rec: string): string {
+  if (rec === "overweight") return "비중확대";
+  if (rec === "underweight") return "비중축소";
+  if (rec === "neutral") return "중립";
+  return rec;
+}
+
 export function AiScreenerTable({ scoreboards, loading, selectedSector, onSectorClick }: AiScreenerTableProps) {
   if (loading) {
     return (
@@ -45,10 +52,7 @@ export function AiScreenerTable({ scoreboards, loading, selectedSector, onSector
               <tr className="border-b border-border text-xs text-muted-foreground">
                 <th className="px-2 py-2 text-left">Rank</th>
                 <th className="px-2 py-2 text-left">Sector</th>
-                <th className="px-2 py-2 text-left">ETF</th>
                 <th className="px-2 py-2 text-right">AI Score</th>
-                <th className="px-2 py-2 text-right">Base</th>
-                <th className="px-2 py-2 text-right">News</th>
                 <th className="px-2 py-2 text-right">Momentum</th>
                 <th className="px-2 py-2 text-center">Signal</th>
               </tr>
@@ -69,24 +73,15 @@ export function AiScreenerTable({ scoreboards, loading, selectedSector, onSector
                   <td className="px-2 py-2 font-medium text-foreground">
                     {getSectorLabel(sb.sector_name)}
                   </td>
-                  <td className="px-2 py-2 font-mono text-xs text-muted-foreground">
-                    {sb.etf_symbol}
-                  </td>
                   <td className={cn("px-2 py-2 text-right font-mono font-bold", getChangeColor(sb.final_score))}>
                     {sb.final_score.toFixed(2)}
-                  </td>
-                  <td className="px-2 py-2 text-right font-mono text-xs text-muted-foreground">
-                    {sb.base_score.toFixed(2)}
-                  </td>
-                  <td className={cn("px-2 py-2 text-right font-mono text-xs", getChangeColor(sb.news_sentiment_score))}>
-                    {sb.news_sentiment_score.toFixed(2)}
                   </td>
                   <td className={cn("px-2 py-2 text-right font-mono text-xs", getChangeColor(sb.momentum_score))}>
                     {sb.momentum_score.toFixed(2)}
                   </td>
                   <td className="px-2 py-2 text-center">
                     <Badge variant={getRecommendationVariant(sb.recommendation)}>
-                      {sb.recommendation}
+                      {getRecommendationLabel(sb.recommendation)}
                     </Badge>
                   </td>
                 </tr>
