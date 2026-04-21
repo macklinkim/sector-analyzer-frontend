@@ -44,7 +44,19 @@ export function MarketTab({
         etfSymbol={selectedEtf}
       />
 
-      {/* Row 3: Sparkline + NewsImpactFeed (2열) — Sparkline이 높이 기준 */}
+      {/* Row 3: MarketMovers + Calendar (2열) */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MarketMovers
+          sectors={marketData.sectors}
+          selectedSector={selectedSector}
+        />
+        <EconomicCalendar
+          indicators={marketData.indicators}
+          loading={marketData.loading}
+        />
+      </div>
+
+      {/* Row 4: Sparkline + NewsImpactFeed (2열) — Sparkline이 높이 기준 */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SectorSparkline
           sectors={marketData.sectors}
@@ -61,18 +73,6 @@ export function MarketTab({
             />
           </div>
         </div>
-      </div>
-
-      {/* Row 4: MarketMovers + Calendar (2열) */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <MarketMovers
-          sectors={marketData.sectors}
-          selectedSector={selectedSector}
-        />
-        <EconomicCalendar
-          indicators={marketData.indicators}
-          loading={marketData.loading}
-        />
       </div>
 
       {/* Row 5~7: 섹터 비교 차트 스택 (RS, MB, RC) */}
