@@ -24,6 +24,13 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
 
   return (
     <div className="rounded-lg border border-border p-3">
+      {crisis.affected_sector && (
+        <div className="mb-2 sm:hidden">
+          <span className={cn("inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", sentimentColor)}>
+            {crisis.affected_sector}
+          </span>
+        </div>
+      )}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h4 className="line-clamp-1 text-sm font-medium text-foreground">
@@ -54,13 +61,6 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
           )}
         </div>
       </div>
-      {crisis.affected_sector && (
-        <div className="mt-2 sm:hidden">
-          <span className={cn("inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", sentimentColor)}>
-            {crisis.affected_sector}
-          </span>
-        </div>
-      )}
     </div>
   );
 }
