@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { getCategoryLabel } from "@/lib/i18n";
-import { getImpactColor } from "@/lib/utils";
 import { ImpactCard } from "./ImpactCard";
 import type { GlobalCrisis, NewsArticleEnriched, NewsImpactAnalysis } from "@/types";
 
@@ -24,13 +23,16 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
 
   return (
     <div className="rounded-lg border border-border p-3">
-      {crisis.affected_sector && (
-        <div className="mb-2 sm:hidden">
+      <div className="mb-2 flex items-center gap-1.5 sm:hidden">
+        <span className={cn("inline-flex items-center justify-center rounded-md px-2 py-1 text-base font-bold text-foreground", sentimentColor)}>
+          {crisis.impact_score}
+        </span>
+        {crisis.affected_sector && (
           <span className={cn("inline-block rounded-md px-2 py-1 text-base font-bold text-foreground", sentimentColor)}>
             {crisis.affected_sector}
           </span>
-        </div>
-      )}
+        )}
+      </div>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h4 className="line-clamp-1 text-sm font-medium text-foreground">
@@ -45,17 +47,17 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
             {crisis.summary}
           </p>
         </div>
-        <div className="flex w-8 shrink-0 flex-col items-end gap-1 sm:w-auto">
+        <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
           <span
             className={cn(
               "inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold",
-              getImpactColor(crisis.impact_score),
+              sentimentColor,
             )}
           >
             {crisis.impact_score}
           </span>
           {crisis.affected_sector && (
-            <span className={cn("hidden rounded px-1.5 py-0.5 text-[10px] font-medium sm:inline-block", sentimentColor)}>
+            <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-medium", sentimentColor)}>
               {crisis.affected_sector}
             </span>
           )}
