@@ -26,7 +26,7 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
     <div className="rounded-lg border border-border p-3">
       {crisis.affected_sector && (
         <div className="mb-2 sm:hidden">
-          <span className={cn("inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", sentimentColor)}>
+          <span className={cn("inline-block rounded-md px-2 py-1 text-base font-bold text-foreground", sentimentColor)}>
             {crisis.affected_sector}
           </span>
         </div>
