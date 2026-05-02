@@ -92,7 +92,7 @@ export function ImpactCard({ article, impact }: ImpactCardProps) {
         </div>
 
         {score > 0 && (
-          <div className="flex shrink-0 flex-col items-end gap-1">
+          <div className="flex w-10 shrink-0 flex-col items-end gap-1 sm:w-auto">
             <span
               className={cn(
                 "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
@@ -102,18 +102,26 @@ export function ImpactCard({ article, impact }: ImpactCardProps) {
               {score}
             </span>
             {catStyle && (
-              <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-medium", catStyle.color)}>
+              <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-medium leading-tight", catStyle.color)}>
                 {catStyle.label}
               </span>
             )}
             {article.related_sector && (
-              <Badge variant="default" className="text-[10px]">
+              <Badge variant="default" className="hidden text-[10px] sm:inline-flex">
                 {article.related_sector}
               </Badge>
             )}
           </div>
         )}
       </div>
+
+      {article.related_sector && score > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1 sm:hidden">
+          <Badge variant="default" className="text-[10px] font-normal">
+            {article.related_sector}
+          </Badge>
+        </div>
+      )}
     </a>
   );
 }

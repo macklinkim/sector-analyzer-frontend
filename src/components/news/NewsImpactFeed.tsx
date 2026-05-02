@@ -38,7 +38,7 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
             {crisis.summary}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
+        <div className="flex w-8 shrink-0 flex-col items-end gap-1 sm:w-auto">
           <span
             className={cn(
               "inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold",
@@ -47,11 +47,20 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
           >
             {crisis.impact_score}
           </span>
-          <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-medium", sentimentColor)}>
+          {crisis.affected_sector && (
+            <span className={cn("hidden rounded px-1.5 py-0.5 text-[10px] font-medium sm:inline-block", sentimentColor)}>
+              {crisis.affected_sector}
+            </span>
+          )}
+        </div>
+      </div>
+      {crisis.affected_sector && (
+        <div className="mt-2 sm:hidden">
+          <span className={cn("inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", sentimentColor)}>
             {crisis.affected_sector}
           </span>
         </div>
-      </div>
+      )}
     </div>
   );
 }
