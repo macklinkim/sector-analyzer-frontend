@@ -23,12 +23,12 @@ function CrisisCard({ crisis }: { crisis: GlobalCrisis }) {
 
   return (
     <div className="rounded-lg border border-border p-3">
-      <div className="mb-2 flex items-center gap-1.5 sm:hidden">
-        <span className={cn("inline-flex items-center justify-center rounded-md px-2 py-1 text-base font-bold text-foreground", sentimentColor)}>
+      <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:hidden">
+        <span className={cn("inline-flex items-center justify-center rounded px-2 py-0.5 text-sm font-bold text-foreground", sentimentColor)}>
           {crisis.impact_score}
         </span>
         {crisis.affected_sector && (
-          <span className={cn("inline-block rounded-md px-2 py-1 text-base font-bold text-foreground", sentimentColor)}>
+          <span className={cn("inline-block rounded px-2 py-0.5 text-sm font-bold text-foreground", sentimentColor)}>
             {crisis.affected_sector}
           </span>
         )}
